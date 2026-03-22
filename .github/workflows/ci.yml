@@ -4,53 +4,54 @@ on: push
 
 jobs:
   prebuild-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         submodules: true
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v6
     - run: npm install --global node-gyp
-    - run: yarn apply-libuiohook-patch
-    - run: yarn --frozen-lockfile
-    - run: yarn prebuild --arch x64
-    # - run: yarn prebuild --arch arm64
-    - uses: actions/upload-artifact@v3
+    - run: npm run apply-libuiohook-patch
+    - run: npm ci
+    - run: npm run prebuild "--" --arch x64
+    - run: npm run prebuild "--" --arch arm64
+    - uses: actions/upload-artifact@v6
       with:
         name: windows
         path: prebuilds
 
   prebuild-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         submodules: true
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v6
     - run: |
         sudo apt-get update
         sudo apt-get install -y libxrandr-dev libxtst-dev
-    - run: yarn apply-libuiohook-patch
-    - run: yarn --frozen-lockfile
-    - run: yarn prebuild --arch x64
-    - run: yarn prebuild --arch arm64
-    - uses: actions/upload-artifact@v3
+    - run: npm run apply-libuiohook-patch
+    - run: npm ci
+    - run: npm run prebuild -- --arch x64
+    - run: npm run prebuild -- --arch arm64
+    - run: npm run prebuild -- --arch loong64
+    - uses: actions/upload-artifact@v6
       with:
         name: linux
         path: prebuilds
 
   prebuild-darwin:
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         submodules: true
-    - uses: actions/setup-node@v3
-    - run: yarn apply-libuiohook-patch
-    - run: yarn --frozen-lockfile
-    - run: yarn prebuild --arch x64
-    - run: yarn prebuild --arch arm64
-    - uses: actions/upload-artifact@v3
+    - uses: actions/setup-node@v6
+    - run: npm run apply-libuiohook-patch
+    - run: npm ci
+    - run: npm run prebuild -- --arch x64
+    - run: npm run prebuild -- --arch arm64
+    - uses: actions/upload-artifact@v6
       with:
         name: darwin
         path: prebuilds
@@ -62,27 +63,27 @@ jobs:
     - prebuild-darwin
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         submodules: true
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v6
       with:
         name: windows
         path: prebuilds
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v6
       with:
         name: linux
         path: prebuilds
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v6
       with:
         name: darwin
         path: prebuilds
-    - uses: actions/setup-node@v3
-    - run: yarn apply-libuiohook-patch
-    - run: yarn --frozen-lockfile --ignore-scripts
-    - run: yarn tsc
+    - uses: actions/setup-node@v6
+    - run: npm run apply-libuiohook-patch
+    - run: npm ci --ignore-scripts
+    - run: npx tsc
     - run: npm pack
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v6
       with:
         name: package
         path: uiohook-napi-*.tgz
